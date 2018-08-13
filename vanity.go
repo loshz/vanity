@@ -39,14 +39,14 @@ func main() {
 	}
 	vcsURL := os.Getenv(envVanityVCSURL)
 	if vcsURL == "" {
-		log.Fatalf("%s must be set, e.g. github.com/username", envVanityVCSURL)
+		log.Fatalf("%s must be set, e.g. https://github.com/username", envVanityVCSURL)
 	}
 	u, err := url.Parse(vcsURL)
 	if err != nil {
 		log.Fatalf("error building VCS URL: %v", err)
 	}
 	if u.Scheme != "https" {
-		log.Fatal("VCS URL scheme must be HTTPS")
+		log.Fatalf("%s scheme must be HTTPS", envVanityVCSURL)
 	}
 
 	http.HandleFunc("/", handler(vcs, u))
