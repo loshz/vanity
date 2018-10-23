@@ -1,12 +1,9 @@
 #################
 # Build stage 0 #
 #################
-FROM golang:1.10-alpine
+FROM golang:1.11-alpine
 
 ARG DOCKER_IMAGE
-
-# Create work dir
-RUN mkdir -p /go/src/github.com/danbondd/vanity
 
 # Set work dir
 WORKDIR /go/src/github.com/danbondd/vanity
