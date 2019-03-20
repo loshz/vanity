@@ -3,9 +3,10 @@ Go vanity URL service.
 
 ## Usage
 
-Build a runable Docker image by executing `./docker.sh`
+- Build a runable Docker image: `docker build -t username/vanity .`
+- Run the docker image using the `vanity` command.
 
 ### Environment Variables
 
 - `VANITY_VCS` defaults to git if not set.
-- `VANITY_VCS_URL` e.g https://github.com/danbondd
+- `VANITY_VCS_URL` e.g https://github.com/syscll

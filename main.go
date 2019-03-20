@@ -12,10 +12,39 @@ import (
 )
 
 const (
-	envVanityVCS    string = "VANITY_VCS"
-	envVanityVCSURL string = "VANITY_VCS_URL"
-	protoHeader     string = "X-Forwarded-Proto"
+	envVanityVCS    = "VANITY_VCS"
+	envVanityVCSURL = "VANITY_VCS_URL"
+	protoHeader     = "X-Forwarded-Proto"
 )
+
+func main() {
+	// check for VCS type
+	vcs := os.Getenv(envVanityVCS)
+	if vcs == "" {
+		vcs = "git"
+	}
+
+	// check for VCS URL
+	vcsURL := os.Getenv(envVanityVCSURL)
+	if vcsURL == "" {
+		log.Fatalf("%s must be set, e.g. https://github.com/username", envVanityVCSURL)
+	}
+
+	// attempt to parse VCS URL
+	u, err := url.Parse(vcsURL)
+	if err != nil {
+		log.Fatalf("invalid VCS URL: %v", err)
+	}
+
+	// check for HTTPS
+	if u.Scheme != "https" {
+		log.Fatalf("%s scheme must be HTTPS", envVanityVCSURL)
+	}
+
+	http.HandleFunc("/", handler(vcs, u))
+	log.Printf("starting web server on :8080, VCS: %s, VCS_URL: %s", vcs, vcsURL)
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
 
 var tmpl = template.Must(template.New("html").Parse(`<!DOCTYPE html>
 <html>
@@ -30,27 +59,6 @@ type tmplData struct {
 	Host   string
 	VCS    string
 	VCSURL string
-}
-
-func main() {
-	vcs := os.Getenv(envVanityVCS)
-	if vcs == "" {
-		vcs = "git"
-	}
-	vcsURL := os.Getenv(envVanityVCSURL)
-	if vcsURL == "" {
-		log.Fatalf("%s must be set, e.g. https://github.com/username", envVanityVCSURL)
-	}
-	u, err := url.Parse(vcsURL)
-	if err != nil {
-		log.Fatalf("error building VCS URL: %v", err)
-	}
-	if u.Scheme != "https" {
-		log.Fatalf("%s scheme must be HTTPS", envVanityVCSURL)
-	}
-
-	http.HandleFunc("/", handler(vcs, u))
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 func handler(vcs string, vcsURL *url.URL) http.HandlerFunc {

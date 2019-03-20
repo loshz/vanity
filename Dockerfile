@@ -1,30 +1,18 @@
 #################
 # Build stage 0 #
 #################
-FROM golang:1.11-alpine
-
-ARG DOCKER_IMAGE
-
-# Set work dir
-WORKDIR /go/src/github.com/danbondd/vanity
-
-# Copy files
+FROM golang:1.12-stretch
+WORKDIR /go/src/github.com/syscll/vanity
 COPY . .
-
-# Build binary
-RUN GOOS=linux go install .
+RUN go test -v -cover ./...
+RUN go install
 
 #################
 # Build stage 1 #
 #################
-FROM alpine
-
-# Copy the binaries from build stage 0
+FROM debian:stretch
+# Copy binaries from build stage 0
 COPY --from=0 /go/bin/ /usr/local/bin/
-
 # Expose web server port
 EXPOSE 8080
-
-ENTRYPOINT ["/bin/sh", "-c"]
-
-CMD ["vanity"]
+ENTRYPOINT ["/bin/bash"]
