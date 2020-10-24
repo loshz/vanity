@@ -40,7 +40,16 @@ func main() {
 		log.Fatalf("%s scheme must be HTTPS", envVanityVCSURL)
 	}
 
+	// configure health check
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+		w.Write([]byte("ok"))
+	})
+
+	// configure root handler
 	http.HandleFunc("/", handler(vcs, u))
+
+	// start web server
 	log.Printf("starting web server on :8080, VCS: %s, VCS_URL: %s", vcs, vcsURL)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
