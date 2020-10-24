@@ -1,6 +1,10 @@
-language: go
-go:
-- 1.12.x
-script: go test -v -cover ./...
+language: shell
+arch: amd64 
+os: linux
+dist: focal
+services:
+- docker
+script:
+- docker build --tag syscll/vanity .
 notifications:
   email: false

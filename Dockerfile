@@ -1,18 +1,11 @@
-#################
-# Build stage 0 #
-#################
-FROM golang:1.12-stretch
-WORKDIR /go/src/github.com/syscll/vanity
+FROM golang:1.15-buster
+WORKDIR $GOPATH/src/github.com/syscll/vanity
 COPY . .
-RUN go test -v -cover ./...
-RUN go install
+RUN go test -v ./...
+RUN CGO_ENABLED=0 go install
 
-#################
-# Build stage 1 #
-#################
-FROM debian:stretch
-# Copy binaries from build stage 0
-COPY --from=0 /go/bin/ /usr/local/bin/
-# Expose web server port
+FROM alpine:3.12
+COPY --from=0 /go/bin/vanity  /bin/vanity
 EXPOSE 8080
-ENTRYPOINT ["/bin/bash"]
+USER 2000:2000
+CMD ["/bin/vanity"]

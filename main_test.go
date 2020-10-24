@@ -16,46 +16,50 @@ type fixture struct {
 }
 
 func TestHandler(t *testing.T) {
+	t.Parallel()
+
 	testTable := make(map[string]fixture)
 
 	testTable["TestHTTPSRedirect"] = fixture{
 		statusCode: http.StatusMovedPermanently,
-		reqURL:     "http://src.danbond.io/vanity",
+		reqURL:     "http://syscll.org/vanity",
 	}
 	testTable["TestProtoHeaderHTTPSRedirect"] = fixture{
 		header:     "http",
-		reqURL:     "http://src.danbond.io/vanity",
+		reqURL:     "http://syscll.org/vanity",
 		statusCode: http.StatusMovedPermanently,
 	}
 	testTable["TestMethodNotAllowed"] = fixture{
 		method:     http.MethodPost,
-		reqURL:     "https://src.danbond.io/vanity",
+		reqURL:     "https://syscll.org/vanity",
 		statusCode: http.StatusMethodNotAllowed,
 	}
 	testTable["TestRedirectURLError"] = fixture{
 		hostURL:    "invalid host",
 		method:     http.MethodGet,
-		reqURL:     "https://src.danbond.io/vanity",
+		reqURL:     "https://syscll.org/vanity",
 		statusCode: http.StatusInternalServerError,
 	}
 	testTable["TestNoGoGet"] = fixture{
 		method:     http.MethodGet,
-		reqURL:     "https://src.danbond.io/vanity",
+		reqURL:     "https://syscll.org/vanity",
 		statusCode: http.StatusTemporaryRedirect,
 	}
 	testTable["TestNoPath"] = fixture{
 		method:     http.MethodGet,
-		reqURL:     "https://src.danbond.io?go-get=1",
+		reqURL:     "https://syscll.org?go-get=1",
 		statusCode: http.StatusTemporaryRedirect,
 	}
 	testTable["TestSuccess"] = fixture{
 		method:     http.MethodGet,
-		reqURL:     "https://src.danbond.io/vanity?go-get=1",
+		reqURL:     "https://syscll.org/vanity?go-get=1",
 		statusCode: http.StatusOK,
 	}
 
 	for name, test := range testTable {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
 			u, err := url.Parse(test.reqURL)
 			if err != nil {
 				t.Fatal(err)
@@ -66,9 +70,9 @@ func TestHandler(t *testing.T) {
 				URL:    u,
 			}
 			if test.header != "" {
-				r.Header.Add(protoHeader, test.header)
+				r.Header.Add("X-Forwarded-Proto", test.header)
 			}
-			u, err = url.Parse("https://github.com/danbondd")
+			u, err = url.Parse("https://github.com/syscll")
 			if err != nil {
 				t.Fatal(err)
 			}

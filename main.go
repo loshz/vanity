@@ -14,7 +14,6 @@ import (
 const (
 	envVanityVCS    = "VANITY_VCS"
 	envVanityVCSURL = "VANITY_VCS_URL"
-	protoHeader     = "X-Forwarded-Proto"
 )
 
 func main() {
@@ -55,16 +54,10 @@ var tmpl = template.Must(template.New("html").Parse(`<!DOCTYPE html>
 </html>
 `))
 
-type tmplData struct {
-	Host   string
-	VCS    string
-	VCSURL string
-}
-
 func handler(vcs string, vcsURL *url.URL) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Scheme != "https" {
-			proto := r.Header.Get(protoHeader)
+			proto := r.Header.Get("X-Forwarded-Proto")
 			if proto == "" || proto != "https" {
 				http.Redirect(w, r, fmt.Sprintf("https://%s%s", r.Host, r.URL.RequestURI()), http.StatusMovedPermanently)
 				return
@@ -87,15 +80,18 @@ func handler(vcs string, vcsURL *url.URL) http.HandlerFunc {
 			return
 		}
 
-		data := &tmplData{
-			Host:   path.Join(r.Host, r.URL.Path),
-			VCS:    vcs,
-			VCSURL: u.String(),
+		data := struct {
+			Host   string
+			VCS    string
+			VCSURL string
+		}{
+			path.Join(r.Host, r.URL.Path),
+			vcs,
+			u.String(),
 		}
 
 		var buf bytes.Buffer
-		err = tmpl.Execute(&buf, data)
-		if err != nil {
+		if err := tmpl.Execute(&buf, &data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
