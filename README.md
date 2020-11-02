@@ -1,4 +1,4 @@
-# vanity [![Build Status](https://travis-ci.org/syscll/vanity.svg?branch=master)](https://travis-ci.org/syscll/vanity)
+# vanity ![build](https://github.com/syscll/vanity/workflows/build/badge.svg)
 Go vanity URL service.
 
 ## Usage
