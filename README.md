@@ -1,4 +1,4 @@
-# vanity ![build](https://github.com/syscll/vanity/workflows/build/badge.svg)
+# vanity [![Build Status](https://github.com/syscll/vanity/workflows/build/badge.svg)](https://github.com/syscll/vanity/actions)
 Go vanity URL service.
 
 ## Usage
