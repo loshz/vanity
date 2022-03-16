@@ -14,6 +14,7 @@ import (
 const (
 	envVanityVCS    = "VANITY_VCS"
 	envVanityVCSURL = "VANITY_VCS_URL"
+	envVanityPort   = "VANITY_PORT"
 )
 
 func main() {
@@ -27,6 +28,12 @@ func main() {
 	vcsURL := os.Getenv(envVanityVCSURL)
 	if vcsURL == "" {
 		log.Fatalf("%s must be set, e.g. https://github.com/username", envVanityVCSURL)
+	}
+
+	// check for listen port
+	vcsPort := os.Getenv(envVanityPort)
+	if vcsPort == "" {
+		vcsPort = ":8080"
 	}
 
 	// attempt to parse VCS URL
@@ -50,8 +57,8 @@ func main() {
 	http.HandleFunc("/", handler(vcs, u))
 
 	// start web server
-	log.Printf("starting web server on :8080, VCS: %s, VCS_URL: %s", vcs, vcsURL)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("starting web server on %s, VCS: %s, VCS_URL: %s", vcsPort, vcs, vcsURL)
+	log.Fatal(http.ListenAndServe(vcsPort, nil))
 }
 
 var tmpl = template.Must(template.New("html").Parse(`<!DOCTYPE html>
